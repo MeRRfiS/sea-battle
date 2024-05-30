@@ -103,9 +103,9 @@ namespace Assets.Scripts.Managers
 
         public void PlacedShip()
         {
+            Ship.IsPlaced = true;
             _uiManager.ChangeShipColor(_cellImages, _deselectColor);
             _levelManager.UpdateFild(Ship);
-            Ship.IsPlaced = true;
         }
     }
 }

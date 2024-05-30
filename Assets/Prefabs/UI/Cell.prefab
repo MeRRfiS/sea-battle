@@ -50,8 +50,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca37dbe014bb7834f864f5237cff6463, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _cellImage: {fileID: 6294324181321810866}
   <X>k__BackingField: 0
   <Y>k__BackingField: 0
+  _missColor: {r: 0.335849, g: 0.335849, b: 0.335849, a: 1}
+  _damageColor: {r: 0.4037736, g: 0, b: 0, a: 1}
 --- !u!222 &7655041128062749741
 CanvasRenderer:
   m_ObjectHideFlags: 0

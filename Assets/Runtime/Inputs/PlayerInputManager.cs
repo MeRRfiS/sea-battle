@@ -14,11 +14,17 @@ namespace Assets.Scripts.Inputs
         private ShipManager _selectedShip;
 
         private ILevelManager _levelManager;
+        private IGameManager _gameManager;
+        private IOpponentFildManager _opponentManager;
 
         [Inject]
-        private void Contructor(ILevelManager levelManager)
+        private void Contructor(ILevelManager levelManager,
+                                IGameManager gameManager,
+                                IOpponentFildManager opponentManager)
         {
             _levelManager = levelManager;
+            _gameManager = gameManager;
+            _opponentManager = opponentManager;
         }
 
         public void SetShip(ShipManager ship)
@@ -60,6 +66,24 @@ namespace Assets.Scripts.Inputs
             _selectedShip.PlacedShip();
             _selectedShip = null;
             _levelManager.EnableShip();
+        }
+
+        public void MovingOnOpponent(InputAction.CallbackContext callback)
+        {
+            if (!_gameManager.IsGameReady()) return;
+            if (!_gameManager.GetPlayer().IsMyTurn) return;
+            if (!callback.started) return;
+
+            _opponentManager.MoveSelectedCell(callback.ReadValue<Vector2>());
+        }
+
+        public void Attack(InputAction.CallbackContext callback)
+        {
+            if (!_gameManager.IsGameReady()) return;
+            if (!_gameManager.GetPlayer().IsMyTurn) return;
+            if (!callback.started) return;
+
+            _gameManager.MakeShoot();
         }
     }
 }

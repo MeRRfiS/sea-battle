@@ -10,8 +10,10 @@ namespace Assets.Scripts.Inputs.Interface
 	{
 		public void SetShip(ShipManager ship);
 		public void Moving(InputAction.CallbackContext callback);
+		public void MovingOnOpponent(InputAction.CallbackContext callback);
         public void Rotate(InputAction.CallbackContext callback);
         public void ResetShip(InputAction.CallbackContext callback);
 		public void PlaceShip(InputAction.CallbackContext callback);
+		public void Attack(InputAction.CallbackContext callback);
     } 
 }
