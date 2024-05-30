@@ -1,6 +1,9 @@
+using Assets.Scripts.Handlers.Interfaces;
 using Assets.Scripts.Managers.Interfaces;
 using Assets.Scripts.Models;
 using Assets.Scripts.Models.Ships;
+using Photon.Pun;
+using Photon.Realtime;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,21 +14,31 @@ namespace Assets.Scripts.Managers
     public class LevelManager : MonoBehaviour, ILevelManager
     {
         private IUIManager _uiManager;
+        private IGameManager _gameManager;
+
+        private IDataSender _dataSender;
 
         private const int X_SIZE = 10;
         private const int Y_SIZE = 10;
 
+        private ShipManager[] _shipManagers;
         private List<BoxCollider2D> _shipsCollider = new List<BoxCollider2D>();
         private CellManager _targetCell;
 
         public CellManager[,] Cells = new CellManager[X_SIZE, Y_SIZE];
 
+
         [Inject]
-        private void Contructor(IUIManager uiManager)
+        private void Contructor(IUIManager uiManager,
+                                IGameManager gameManager,
+                                IDataSender dataSender)
         {
             _uiManager = uiManager;
+            _gameManager = gameManager;
+            _dataSender = dataSender;
 
-            foreach (var ship in FindObjectsOfType<ShipManager>())
+            _shipManagers = FindObjectsOfType<ShipManager>();
+            foreach (var ship in _shipManagers)
             {
                 _shipsCollider.Add(ship.GetComponent<BoxCollider2D>());
             }
@@ -52,11 +65,11 @@ namespace Assets.Scripts.Managers
 
         public void EnableShip()
         {
-            foreach (var ship in _shipsCollider)
+            foreach (var ship in _shipManagers)
             {
-                if (ship.GetComponent<ShipManager>().Ship.IsPlaced) continue;
+                if (ship.Ship.IsPlaced) continue;
 
-                ship.enabled = true;
+                ship.GetComponent<BoxCollider2D>().enabled = true;
             }
         }
 
@@ -108,6 +121,7 @@ namespace Assets.Scripts.Managers
             }
             byte[,] formedData = ToFormData(data, startDataY, endDataY, startDataX, endDataX);
             UpdateCellsType(formedData);
+            CheckFildIsFilled();
         }
 
         private void UpdateCellsType(byte[,] formedData)
@@ -136,6 +150,22 @@ namespace Assets.Scripts.Managers
             }
 
             return formedData;
+        }
+
+        private void CheckFildIsFilled()
+        {
+            foreach (var ship in _shipManagers)
+            {
+                if (!ship.Ship.IsPlaced) return;
+                else continue;
+            }
+
+
+            _gameManager.SetUpPlayerFild(Cells);
+            _gameManager.GetPlayer().IsReady = true;
+            _dataSender.SendPlayerReadyStatus((int)_gameManager.GetPlayer().Type);
+
+            _gameManager.CheckPlayersReady();
         }
 
         [ContextMenu("Show Fild")]
