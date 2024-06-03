@@ -29,13 +29,13 @@ namespace Assets.Scripts.Managers
             _uiManager = uiManager;
             _gameManager = gameManager;
 
-            PhotonNetwork.ConnectUsingSettings();
+            //PhotonNetwork.ConnectUsingSettings();
         }
 
-        public override void OnConnectedToMaster()
-        {
-            PhotonNetwork.JoinOrCreateRoom("Game Room 1", new Photon.Realtime.RoomOptions { MaxPlayers = 2 }, null);
-        }
+        //public override void OnConnectedToMaster()
+        //{
+        //    PhotonNetwork.JoinOrCreateRoom("Game Room 1", new Photon.Realtime.RoomOptions { MaxPlayers = 2 }, null);
+        //}
 
         public override void OnJoinedRoom()
         {
