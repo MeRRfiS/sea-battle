@@ -113,6 +113,8 @@ namespace Assets.Scripts.Managers
                     player.OnOpponentTurn += _opponentManager.RemoveSelectedCell;
                     player.OnShowCellStatus += _uiManager.ShowVisualCell;
                     player.OnGetCell += _opponentManager.ReturnCell;
+                    player.OnGetFild += _opponentManager.ReturnFild;
+                    player.OnGetDamage += _uiManager.ShowGetDamage;
                 }
 
                 if (PhotonNetwork.IsMasterClient)
@@ -141,27 +143,34 @@ namespace Assets.Scripts.Managers
         public void MakeShoot()
         {
             _sender.SendOpponentShoot(_opponentManager.GetX(), _opponentManager.GetY());
+
             if (GetOpponent().IsSetDamage())
             {
-                if(GetOpponent().Health <= 0)
+                if (GetOpponent().Health <= 0)
                 {
                     EndGame(true);
                     _sender.SendEndGameStatus(false);
                 }
+                _opponentManager.ShowShoot(null);
                 return;
             }
 
-            bool isFirstPlayerTurn = GetPlayer().IsMyTurn;
-            bool isSecondPlayerTurn = GetOpponent().IsMyTurn;
-            if (PhotonNetwork.IsMasterClient)
+            _opponentManager.ShowShoot(SwitchPlayer);
+
+            void SwitchPlayer()
             {
-                ChangePlayerTurn(!isFirstPlayerTurn, !isSecondPlayerTurn);
-                _sender.SendPlayerTurn(!isFirstPlayerTurn, !isSecondPlayerTurn);
-            }
-            else
-            {
-                ChangePlayerTurn(!isSecondPlayerTurn, !isFirstPlayerTurn);
-                _sender.SendPlayerTurn(!isSecondPlayerTurn, !isFirstPlayerTurn);
+                bool isFirstPlayerTurn = GetPlayer().IsMyTurn;
+                bool isSecondPlayerTurn = GetOpponent().IsMyTurn;
+                if (PhotonNetwork.IsMasterClient)
+                {
+                    this.ChangePlayerTurn(!isFirstPlayerTurn, !isSecondPlayerTurn);
+                    _sender.SendPlayerTurn(!isFirstPlayerTurn, !isSecondPlayerTurn);
+                }
+                else
+                {
+                    this.ChangePlayerTurn(!isSecondPlayerTurn, !isFirstPlayerTurn);
+                    _sender.SendPlayerTurn(!isSecondPlayerTurn, !isFirstPlayerTurn);
+                }
             }
         }
 
@@ -239,6 +248,14 @@ namespace Assets.Scripts.Managers
             _receiver.OnSetFildData -= SetUpOpponentFild;
             _receiver.OnSetShootResult -= ShowDamageOnFild;
             _receiver.OnShowGameResult -= EndGame;
+        }
+
+        public void PlayerLeaveGame()
+        {
+            if(_isGameReady) _sender.SendEndGameStatus(true);
+
+            PhotonNetwork.JoinLobby();
+            PhotonNetwork.LoadLevel("Menu");
         }
     } 
 }

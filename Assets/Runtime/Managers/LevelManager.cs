@@ -160,12 +160,7 @@ namespace Assets.Scripts.Managers
                 else continue;
             }
 
-
-            _gameManager.SetUpPlayerFild(Cells);
-            _gameManager.GetPlayer().IsReady = true;
-            _dataSender.SendPlayerReadyStatus((int)_gameManager.GetPlayer().Type);
-
-            _gameManager.CheckPlayersReady();
+            _uiManager.SwitchInteractable(true);
         }
 
         [ContextMenu("Show Fild")]
@@ -209,6 +204,31 @@ namespace Assets.Scripts.Managers
             }
 
             return true;
+        }
+
+        public void PlayerReadyButton()
+        {
+            _gameManager.SetUpPlayerFild(Cells);
+            _gameManager.GetPlayer().IsReady = true;
+            _dataSender.SendPlayerReadyStatus((int)_gameManager.GetPlayer().Type);
+
+            _gameManager.CheckPlayersReady();
+        }
+
+        public void ResetShipButton()
+        {
+            _uiManager.SwitchInteractable(false);
+
+            foreach (var cell in Cells)
+            {
+                cell.Cell.Type = CellModel.CellType.Nothing;
+            }
+
+            foreach (var ship in _shipManagers)
+            {
+                ship.Ship.IsPlaced = false;
+                ship.DeselectShip();
+            }
         }
     }
 }

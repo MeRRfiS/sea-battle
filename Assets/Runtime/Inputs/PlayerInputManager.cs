@@ -61,7 +61,11 @@ namespace Assets.Scripts.Inputs
         {
             if (_selectedShip == null) return;
             if (!callback.started) return;
-            if (!_levelManager.IsCanPlace(_selectedShip.Ship)) return;
+            if (!_levelManager.IsCanPlace(_selectedShip.Ship))
+            {
+                StartCoroutine(_selectedShip.CantPlace());
+                return;
+            }
 
             _selectedShip.PlacedShip();
             _selectedShip = null;

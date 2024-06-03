@@ -12,6 +12,7 @@ namespace Assets.Scripts.Managers.Interfaces
         public void CheckPlayersReady();
 		public void MakeShoot();
         public void SetUpPlayerFild(CellManager[,] fild);
+        public void PlayerLeaveGame();
 
     } 
 }

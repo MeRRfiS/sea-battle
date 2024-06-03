@@ -26,10 +26,10 @@ namespace Assets.Scripts.Models.Ships
 		public int CellCount;
 		[HideInInspector] public bool IsPlaced = false;
 
-		private float _horizontalMax = -139.6201f;
+		private float _horizontalMax = -139.4201f;
         private float _horizontalMin = -814.6201f;
 		private float _verticalMax = 339.5399f;
-		private float _verticalMin = -335.4601f;
+		private float _verticalMin = -336.0601f;
 
 		public bool IsCanMove(Vector2 newPosition) 
 		{

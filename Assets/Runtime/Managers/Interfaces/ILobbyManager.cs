@@ -10,5 +10,8 @@ namespace Assets.Scripts.Managers.Interfaces
 		public void CloseCreateServerMenu();
 		public void CreateServer();
 		public void OpenServer(string name);
-	} 
+		public void OpenInstructionButton();
+        public void CloseInstructionButton();
+        public void LeaveGame();
+    } 
 }
