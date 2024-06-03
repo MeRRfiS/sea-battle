@@ -14,5 +14,7 @@ namespace Assets.Scripts.Managers.Interfaces
         public void UpdateFild(Ship ship);
         public void ShowFildType();
         public bool IsCanPlace(Ship ship);
+        public void PlayerReadyButton();
+        public void ResetShipButton();
     } 
 }

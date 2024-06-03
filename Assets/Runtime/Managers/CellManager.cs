@@ -9,6 +9,7 @@ namespace Assets.Scripts.Managers
     public class CellManager : MonoBehaviour
     {
         [SerializeField] private Image _cellImage;
+        [SerializeField] private Sprite _shipCellSprite;
 
         [field: Header("Position")]
         [field: SerializeField] public int X { get; private set; }
@@ -30,9 +31,11 @@ namespace Assets.Scripts.Managers
             switch (Cell.Type)
             {
                 case CellModel.CellType.Miss:
+                    _cellImage.sprite = _shipCellSprite;
                     _cellImage.color = _missColor;
                     break;
                 case CellModel.CellType.Damage:
+                    _cellImage.sprite = _shipCellSprite;
                     _cellImage.color = _damageColor;
                     break;
             }

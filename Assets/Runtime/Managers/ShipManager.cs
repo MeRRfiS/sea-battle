@@ -1,6 +1,8 @@
 using Assets.Scripts.Inputs.Interface;
 using Assets.Scripts.Managers.Interfaces;
 using Assets.Scripts.Models.Ships;
+using DG.Tweening;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -14,11 +16,11 @@ namespace Assets.Scripts.Managers
         [HideInInspector] public Ship Ship;
 
         [Header("Settings")]
-        [SerializeField] private Transform _shipList;
         [SerializeField] private Transform _shipPos;
         [SerializeField] private Ship.ShipType _type;
         [SerializeField] private Color _deselectColor;
         [SerializeField] private Color _selectColor;
+        [SerializeField] private Color _cantPlaceColor;
 
         [Header("Components")]
         [SerializeField] private BoxCollider2D _boxCollider;
@@ -27,6 +29,13 @@ namespace Assets.Scripts.Managers
         private ILevelManager _levelManager;
         private IPlayerInputManager _playerInputManager;
         private IUIManager _uiManager;
+
+        private bool _isCanMoving = false;
+
+        public bool IsCanMoving
+        {
+            set { _isCanMoving = value; }
+        }
 
         [Inject]
         private void Contructor(ILevelManager levelManager,
@@ -66,28 +75,34 @@ namespace Assets.Scripts.Managers
 
         public void MoveShip(Vector2 moveSide)
         {
+            if (!_isCanMoving) return;
+
             Vector2 newPosition = new Vector2(transform.localPosition.x + 75 * moveSide.x,
                                               transform.localPosition.y + 75 * moveSide.y);
             if (!Ship.IsCanMove(newPosition)) return;
 
+            _isCanMoving = false;
             _levelManager.ChangeTargetCell(moveSide);
-            transform.localPosition = newPosition;
+            transform.DOLocalMove(newPosition, 0.1f).OnComplete(() => { _isCanMoving = true; });
         }
 
         public void RotateShip()
         {
+            if (!_isCanMoving) return;
+
+            _isCanMoving = false;
             Vector2 shipPos = transform.localPosition;
             Ship.CheckRotation(ref shipPos, _levelManager.ChangeTargetCell);
-            transform.localPosition = shipPos;
+            transform.DOLocalMove(shipPos,0.1f);
 
             switch (Ship.ShipPosition)
             {
                 case Ship.Position.Horizontal:
-                    transform.rotation = Quaternion.Euler(0, 0, -90);
+                    transform.DORotate(new Vector3(0, 0, -90), 0.1f).OnComplete(() => { _isCanMoving = true; });
                     Ship.ShipPosition = Ship.Position.Vertical;
                     break;
                 case Ship.Position.Vertical:
-                    transform.rotation = Quaternion.Euler(0, 0, 0);
+                    transform.DORotate(new Vector3(0, 0, 0), 0.1f).OnComplete(() => { _isCanMoving = true; });
                     Ship.ShipPosition = Ship.Position.Horizontal;
                     break;
             }
@@ -95,7 +110,7 @@ namespace Assets.Scripts.Managers
 
         public void DeselectShip()
         {
-            _uiManager.ReturnShipToList(transform, _shipList, _shipPos.position);
+            _uiManager.ReturnShipToList(transform, _shipPos.position);
             _uiManager.ChangeShipColor(_cellImages, _deselectColor);
             Ship.ShipPosition = Ship.Position.Horizontal;
             _levelManager.EnableShip();
@@ -106,6 +121,22 @@ namespace Assets.Scripts.Managers
             Ship.IsPlaced = true;
             _uiManager.ChangeShipColor(_cellImages, _deselectColor);
             _levelManager.UpdateFild(Ship);
+        }
+
+        private void Update()
+        {
+            if(Ship.IsPlaced) _uiManager.ChangeShipColor(_cellImages, _deselectColor);
+        }
+
+        public IEnumerator CantPlace()
+        {
+            _isCanMoving = false;
+            _uiManager.ChangeShipColor(_cellImages, _cantPlaceColor);
+
+            yield return new WaitForSeconds(0.3f);
+
+            _uiManager.ChangeShipColor(_cellImages, _selectColor);
+            _isCanMoving = true;
         }
     }
 }

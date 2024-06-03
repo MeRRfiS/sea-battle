@@ -12,6 +12,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks, ILobbyManager
 {
     [Header("Menus")]
     [SerializeField] private GameObject _createServerMenu;
+    [SerializeField] private GameObject _instructionMenu;
 
     [Header("UI Component")]
     [SerializeField] private TMP_InputField _input;
@@ -69,5 +70,21 @@ public class LobbyManager : MonoBehaviourPunCallbacks, ILobbyManager
                 server.GetComponent<Button>().onClick.AddListener(() => OpenServer(room.Name));
             }
         }
+    }
+
+    public void OpenInstructionButton()
+    {
+        _instructionMenu.SetActive(true);
+    }
+
+    public void CloseInstructionButton()
+    {
+        _instructionMenu.SetActive(false);
+    }
+
+    public void LeaveGame()
+    {
+        PhotonNetwork.Disconnect();
+        Application.Quit();
     }
 }

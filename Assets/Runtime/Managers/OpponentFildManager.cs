@@ -1,10 +1,12 @@
 using Assets.Scripts.Managers;
 using Assets.Scripts.Managers.Interfaces;
 using Assets.Scripts.Models;
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Assets.Scripts.Managers
 {
@@ -15,11 +17,14 @@ namespace Assets.Scripts.Managers
 
         private CellManager[,] _cells = new CellManager[X_SIZE, Y_SIZE];
 
+        [SerializeField] private GameObject _waitText;
+
         [Header("Prefabs")]
         [SerializeField] private GameObject _selectedCellPrefab;
 
         private GameObject _selectedCell;
 
+        private bool _isCanMove = true;
         private int X = 0;
         private int Y = 0;
         private float _horizontalMax = 811.3401f;
@@ -30,18 +35,21 @@ namespace Assets.Scripts.Managers
         public void MoveSelectedCell(Vector2 moveSide)
         {
             if (_selectedCell == null) return;
+            if (!_isCanMove) return;
 
             Vector2 newPosition = new Vector2(_selectedCell.transform.localPosition.x + 75 * moveSide.x,
                                               _selectedCell.transform.localPosition.y + 75 * moveSide.y);
             if (!IsCanMove(newPosition)) return;
 
+            _isCanMove = false;
             X = X - (int)moveSide.y;
             Y = Y + (int)moveSide.x;
-            _selectedCell.transform.localPosition = newPosition;
+            _selectedCell.transform.DOLocalMove(newPosition, 0.1f).OnComplete(() => { _isCanMove = true; });
         }
 
         public void EnableFild()
         {
+            _waitText.SetActive(false);
             gameObject.SetActive(true);
         }
 
@@ -89,8 +97,12 @@ namespace Assets.Scripts.Managers
 
         public CellManager ReturnCell()
         {
-            ShowFildType();
             return _cells[X, Y];
+        }
+
+        public CellManager[,] ReturnFild()
+        {
+            return _cells;
         }
 
         public void SetCellsInfo(CellModel[,] cellsInfo)
@@ -108,23 +120,14 @@ namespace Assets.Scripts.Managers
                     _cells[i, j].Cell = cellsInfo[i, j];
                 }
             }
-
-            ShowFildType();
         }
 
-        private void ShowFildType()
+        public void ShowShoot(Action shootResult)
         {
-            string fild = "";
-            for (int i = 0; i < X_SIZE; i++)
-            {
-                for (int j = 0; j < Y_SIZE; j++)
-                {
-                    fild += $"{(int)_cells[i, j].Cell.Type}\t";
-                }
-                fild += "\n";
-            }
-
-            Debug.Log("\n" + fild, gameObject);
+            DOTween.Sequence()
+                .Append(_selectedCell.GetComponent<Image>().DOFade(0.1f, 0.25f))
+                .Append(_selectedCell.GetComponent<Image>().DOFade(1f, 0.25f))
+                .OnComplete(() => { shootResult?.Invoke(); });
         }
     } 
 }

@@ -34,7 +34,7 @@ namespace Assets.Scripts.Managers
 
         public override void OnConnectedToMaster()
         {
-            PhotonNetwork.JoinOrCreateRoom("Game Room", new Photon.Realtime.RoomOptions { MaxPlayers = 2 }, null);
+            PhotonNetwork.JoinOrCreateRoom("Game Room 1", new Photon.Realtime.RoomOptions { MaxPlayers = 2 }, null);
         }
 
         public override void OnJoinedRoom()
@@ -53,11 +53,11 @@ namespace Assets.Scripts.Managers
 
         private IEnumerator WaitPlayer()
         {
-            //while (PhotonNetwork.CurrentRoom.PlayerCount != 2)
-            //{
-            //    yield return new WaitForSeconds(1);
-            //}
-            yield return new WaitForSeconds(0.1f);
+            while (PhotonNetwork.CurrentRoom.PlayerCount != 2)
+            {
+                yield return new WaitForSeconds(1);
+            }
+            //yield return new WaitForSeconds(0.1f);
             _uiManager.DisableWaitPanel();
             _levelManager.EnableShip();
         }
